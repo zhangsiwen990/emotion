@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>情绪管理器</title>
+<style>
+  #emotionManager {
+    text-align: center;
+    margin-top: 50px;
+  }
+
+  #negativeEmotionBtn {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+
+  .progress-container {
+    width: 100%;
+    background-color: #ddd;
+    border-radius: 5px;
+    margin: 20px 0;
+    overflow: hidden;
+  }
+
+  .progress-bar {
+    height: 20px;
+    background-color: red;
+    width: 0%;
+    border-radius: 5px;
+    transition: width 0.5s ease-in-out;
+  }
+
+  .face {
+    font-size: 48px; /* 设置表情字体大小 */
+    display: none; /* 默认不显示 */
+    margin-top: 20px;
+  }
+
+  .tissue {
+    font-size: 48px; /* 设置纸巾字体大小 */
+    color: #ffcc00; /* 纸巾颜色 */
+    cursor: grab;
+    display: none; /* 默认不显示 */
+    margin-top: 20px;
+  }
+
+  .prompt-text {
+    display: none;
+    font-size: 20px;
+    color: #555;
+  }
+</style>
+</head>
+<body>
+
+<div id="emotionManager">
+  <h2>情绪管理器</h2>
+  <button id="negativeEmotionBtn">增加负面情绪</button>
+  <div class="progress-container">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+  <div class="face" id="emotionFace"></div>
+  <div class="tissue" id="tissue" draggable="true">🧻</div>
+  <p class="prompt-text" id="promptText"></p>
+</div>
+
+<script>
+  let negativeEmotion = 0;
+  const progressBar = document.getElementById('progressBar');
+  const emotionFace = document.getElementById('emotionFace');
+  const tissue = document.getElementById('tissue');
+  const negativeEmotionBtn = document.getElementById('negativeEmotionBtn');
+  const promptText = document.getElementById('promptText');
+  const emotions = [
+    '😼', '😄', '😁', '😃', '☺️', '🙂', '😞', '😔', '😠', '☹️', '😢'
+  ];
+
+  negativeEmotionBtn.addEventListener('click', () => {
+    negativeEmotion = (negativeEmotion + 1) % 11;
+    updateProgressBar();
+    updateEmotionFace();
+  });
+
+  function updateProgressBar() {
+    progressBar.style.width = `${negativeEmotion * 10}%`;
+  }
+
+  function updateEmotionFace() {
+    emotionFace.textContent = emotions[negativeEmotion];
+    emotionFace.style.display = 'block';
+    if (negativeEmotion === 10) {
+      tissue.style.display = 'block';
+    } else {
+      tissue.style.display = 'none';
+    }
+  }
+
+  document.body.addEventListener('dragover', (e) => {
+    e.preventDefault();
+  });
+
+  document.body.addEventListener('drop', (e) => {
+    e.preventDefault();
+    if (e.target.id === 'emotionFace' && negativeEmotion === 10) {
+      negativeEmotion = 0;
+      updateProgressBar();
+      updateEmotionFace();
+      tissue.style.display = 'none';
+      promptText.style.display = 'block';
+      promptText.textContent = '没事哒，没事哒，没事哒';
+    }
+  });
+
+  tissue.addEventListener('dragstart', (e) => {
+    e.dataTransfer.setData("text/plain", null);
+  });
+</script>
+
+</body>
+</html>
