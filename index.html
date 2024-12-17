@@ -2,12 +2,25 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=720, height=1280, initial-scale=1.0">
 <title>情绪管理器</title>
 <style>
+  body, html {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #f7f7f7;
+    border: 4px solid #333; /* 深灰色边框 */
+  }
+
   #emotionManager {
     text-align: center;
-    margin-top: 50px;
+    width: 100%;
+    max-width: 720px;
   }
 
   #negativeEmotionBtn {
@@ -17,6 +30,12 @@
     background-color: #f0f0f0;
     border: 1px solid #ccc;
     border-radius: 5px;
+    margin-top: 20px;
+  }
+
+  #negativeEmotionBtn.disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
   }
 
   .progress-container {
@@ -37,7 +56,7 @@
 
   .face {
     font-size: 48px; /* 设置表情字体大小 */
-    display: none; /* 默认不显示 */
+    display: block; /* 默认显示 */
     margin-top: 20px;
   }
 
@@ -53,6 +72,7 @@
     display: none;
     font-size: 20px;
     color: #555;
+    margin-top: 20px;
   }
 </style>
 </head>
@@ -64,9 +84,10 @@
   <div class="progress-container">
     <div class="progress-bar" id="progressBar"></div>
   </div>
-  <div class="face" id="emotionFace"></div>
+  <div class="face" id="emotionFace">😍😍😍😍</div>
   <div class="tissue" id="tissue" draggable="true">🧻</div>
   <p class="prompt-text" id="promptText"></p>
+  <p id="moodText"></p>
 </div>
 
 <script>
@@ -76,14 +97,29 @@
   const tissue = document.getElementById('tissue');
   const negativeEmotionBtn = document.getElementById('negativeEmotionBtn');
   const promptText = document.getElementById('promptText');
-  const emotions = [
-    '😼', '😄', '😁', '😃', '☺️', '🙂', '😞', '😔', '😠', '☹️', '😢'
+  const moodText = document.getElementById('moodText');
+  const emotions = ['😍', '😍', '😍', '😍', '😍', '😍', '😍', '😞', '😔', '😠', '☹️', '😢'];
+
+  const moodMessages = [
+    '老年人应该去上班，因为他们成熟稳重还能早起',
+    '中年人应该去上学，因为他们总是后悔当初读书太少',
+    '小孩子应该在家做家务，因为他们精力充沛热爱生活',
+    '年轻人应该去养老，因为他们浑身是病天天嚷着想死',
+    '上班和要饭最大的区别在于，要饭是行行好～，上班是：行！行！好！',
+    '要饭是：自由上班；上班是：到点要饭',
+    '要饭是：看天气；上班是：风雨无阻',
+    '要饭是：工资现结；上班是：工资月结',
+    '要饭是：一天赚1000；上班是：一天赚100'
   ];
 
   negativeEmotionBtn.addEventListener('click', () => {
+    if (negativeEmotion === 10 && !tissue.classList.contains('used')) {
+      return;
+    }
     negativeEmotion = (negativeEmotion + 1) % 11;
     updateProgressBar();
     updateEmotionFace();
+    updateMoodText();
   });
 
   function updateProgressBar() {
@@ -91,13 +127,21 @@
   }
 
   function updateEmotionFace() {
-    emotionFace.textContent = emotions[negativeEmotion];
-    emotionFace.style.display = 'block';
+    emotionFace.innerHTML = emotions[negativeEmotion];
     if (negativeEmotion === 10) {
       tissue.style.display = 'block';
+      negativeEmotionBtn.classList.add('disabled');
+      negativeEmotionBtn.disabled = true;
     } else {
       tissue.style.display = 'none';
+      negativeEmotionBtn.classList.remove('disabled');
+      negativeEmotionBtn.disabled = false;
     }
+  }
+
+  function updateMoodText() {
+    moodText.textContent = moodMessages[negativeEmotion];
+    moodText.style.display = negativeEmotion > 0 ? 'block' : 'none';
   }
 
   document.body.addEventListener('dragover', (e) => {
@@ -107,12 +151,13 @@
   document.body.addEventListener('drop', (e) => {
     e.preventDefault();
     if (e.target.id === 'emotionFace' && negativeEmotion === 10) {
+      tissue.classList.add('used');
       negativeEmotion = 0;
       updateProgressBar();
       updateEmotionFace();
       tissue.style.display = 'none';
       promptText.style.display = 'block';
-      promptText.textContent = '没事哒，没事哒，没事哒';
+      promptText.textContent = '与其内耗，不如大笑～';
     }
   });
 
